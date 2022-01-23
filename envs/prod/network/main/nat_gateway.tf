@@ -1,7 +1,7 @@
 resource "aws_nat_gateway" "this" {
   for_each = var.enable_nat_gateway ? local.nat_gateway_azs : {}
 
-# nat_gateway[a].id, aws_eipの中でもループされているから[a]で呼ぶ
+  # nat_gateway[a].id, aws_eipの中でもループされているから[a]で呼ぶ
   allocation_id = aws_eip.nat_gateway[each.key].id
   subnet_id     = aws_subnet.public[each.key].id
 

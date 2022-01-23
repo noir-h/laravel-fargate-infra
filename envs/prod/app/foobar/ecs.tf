@@ -132,10 +132,10 @@ resource "aws_ecs_service" "this" {
     capacity_provider = "FARGATE_SPOT"
     // 指定されたキャパシティープロバイダーで実行するタスクの最小限の数を指定
     // 今回はFARGATE＿SPOTのみの指定なので意味なし
-    base              = 0
+    base = 0
     // 指定されたキャパシティープロバイダーを使用する、起動済みタスクの総数に対する比率を指定
     // 今回はFARGATE＿SPOTのみの指定なので意味なし
-    weight            = 1
+    weight = 1
   }
   // fargateのバージョン
   platform_version = "1.4.0"

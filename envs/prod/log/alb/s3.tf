@@ -1,7 +1,7 @@
 resource "aws_s3_bucket" "this" {
   bucket = "noir-${local.name_prefix}-alb-log"
 
-// 暗号化の設定、S3が管理するキーにより暗号化が行われる
+  // 暗号化の設定、S3が管理するキーにより暗号化が行われる
   server_side_encryption_configuration {
     rule {
       apply_server_side_encryption_by_default {
@@ -14,11 +14,11 @@ resource "aws_s3_bucket" "this" {
     Name = "shonansurvivors-${local.name_prefix}-alb-log"
   }
 
-// S3バケット内のオブジェクト保存期間
+  // S3バケット内のオブジェクト保存期間
   lifecycle_rule {
     enabled = true
 
-// 90日保存
+    // 90日保存
     expiration {
       days = "90"
     }

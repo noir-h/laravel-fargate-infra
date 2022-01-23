@@ -1,14 +1,14 @@
 resource "aws_lb" "this" {
-// countの数だけリソースが作られる
+  // countの数だけリソースが作られる
   count = var.enable_alb ? 1 : 0
 
   name = "${local.name_prefix}-appfoobar-click"
 
-// 内部向けか、外部向けか
+  // 内部向けか、外部向けか
   internal           = false
   load_balancer_type = "application"
 
-// accsesslogの保存場所指定
+  // accsesslogの保存場所指定
   access_logs {
     bucket  = data.terraform_remote_state.log_alb.outputs.s3_bucket_this_id
     enabled = true
@@ -20,7 +20,7 @@ resource "aws_lb" "this" {
     data.terraform_remote_state.network_main.outputs.security_group_vpc_id
   ]
 
-// ALBが属するサブネットのIDをlist形式で指定する
+  // ALBが属するサブネットのIDをlist形式で指定する
   subnets = [
     for s in data.terraform_remote_state.network_main.outputs.subnet_public : s.id
   ]
@@ -33,13 +33,13 @@ resource "aws_lb" "this" {
 resource "aws_lb_listener" "https" {
   count = var.enable_alb ? 1 : 0
 
-// protocolに「"HTTPS"」を指定した場合は、証明書のARNを指定します。 
+  // protocolに「"HTTPS"」を指定した場合は、証明書のARNを指定します。 
   certificate_arn   = aws_acm_certificate.root.arn
   load_balancer_arn = aws_lb.this[0].arn
   port              = "443"
   protocol          = "HTTPS"
   // defaultを明示的に指定してるだけ
-  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  ssl_policy = "ELBSecurityPolicy-2016-08"
 
   default_action {
     // テスト用
@@ -87,19 +87,19 @@ resource "aws_lb_target_group" "foobar" {
   // ALBはヘルスチェックとして、ターゲットに定期的にリクエストを送信する。その設定 
   health_check {
     // 異常なターゲットが正常であると見なされるまでに、必要なヘルスチェックの連続成功回数
-    healthy_threshold   = 2
+    healthy_threshold = 2
     // ヘルスチェックの間隔を秒で指定
-    interval            = 30
+    interval = 30
     // どんなステータスコードが返ってきたら正常とみなすかを指定
-    matcher             = 200
+    matcher = 200
     // ヘルスチェックで使用するpath
-    path                = "/"
+    path = "/"
     // ヘルスチェックで使用するポート番号を指定。"traffic-port"を指定すると、ターゲットがALBからのトラフィックを受信するポートが、ヘルスチェックでも使用される
-    port                = "traffic-port"
+    port = "traffic-port"
     // ヘルスチェックで使用するprotocl
-    protocol            = "HTTP"
+    protocol = "HTTP"
     // ここで指定した秒数の間、ターゲットからのレスポンスがないと、ヘルスチェックが失敗とみなされる
-    timeout             = 5
+    timeout = 5
     // ターゲットが異常であると見なされるまでに、必要なヘルスチェックの連続失敗回数
     unhealthy_threshold = 2
   }

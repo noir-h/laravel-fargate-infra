@@ -30,7 +30,7 @@ resource "aws_route53_record" "root_a" {
   alias {
     evaluate_target_health = true
     // dns_nameはALBのDNS名
-    name                   = aws_lb.this[0].dns_name
-    zone_id                = aws_lb.this[0].zone_id
+    name    = aws_lb.this[0].dns_name
+    zone_id = aws_lb.this[0].zone_id
   }
 }
