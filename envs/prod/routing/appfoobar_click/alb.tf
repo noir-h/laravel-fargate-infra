@@ -42,13 +42,18 @@ resource "aws_lb_listener" "https" {
   ssl_policy        = "ELBSecurityPolicy-2016-08"
 
   default_action {
-    type = "fixed-response"
+    // テスト用
+    # type = "fixed-response"
 
-    fixed_response {
-      content_type = "text/plain"
-      message_body = "Fixed response content"
-      status_code  = "200"
-    }
+    # fixed_response {
+    #   content_type = "text/plain"
+    #   message_body = "Fixed response content"
+    #   status_code  = "200"
+    # }
+
+    type = "forward"
+
+    target_group_arn = aws_lb_target_group.foobar.arn
   }
 }
 
@@ -67,5 +72,39 @@ resource "aws_lb_listener" "redirect_http_to_https" {
       protocol    = "HTTPS"
       status_code = "HTTP_301"
     }
+  }
+}
+
+resource "aws_lb_target_group" "foobar" {
+  name = "${local.name_prefix}-foobar"
+
+  // ターゲットを解除する(ALBから切り離す)前に、ALBが待機する時間を指定する
+  deregistration_delay = 60
+  port                 = 80
+  protocol             = "HTTP"
+  target_type          = "ip"
+  vpc_id               = data.terraform_remote_state.network_main.outputs.vpc_this_id
+  // ALBはヘルスチェックとして、ターゲットに定期的にリクエストを送信する。その設定 
+  health_check {
+    // 異常なターゲットが正常であると見なされるまでに、必要なヘルスチェックの連続成功回数
+    healthy_threshold   = 2
+    // ヘルスチェックの間隔を秒で指定
+    interval            = 30
+    // どんなステータスコードが返ってきたら正常とみなすかを指定
+    matcher             = 200
+    // ヘルスチェックで使用するpath
+    path                = "/"
+    // ヘルスチェックで使用するポート番号を指定。"traffic-port"を指定すると、ターゲットがALBからのトラフィックを受信するポートが、ヘルスチェックでも使用される
+    port                = "traffic-port"
+    // ヘルスチェックで使用するprotocl
+    protocol            = "HTTP"
+    // ここで指定した秒数の間、ターゲットからのレスポンスがないと、ヘルスチェックが失敗とみなされる
+    timeout             = 5
+    // ターゲットが異常であると見なされるまでに、必要なヘルスチェックの連続失敗回数
+    unhealthy_threshold = 2
+  }
+
+  tags = {
+    Name = "${local.name_prefix}-foobar"
   }
 }
